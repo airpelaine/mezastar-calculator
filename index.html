@@ -5,13 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mezastar Pokédex & Battle Assistant</title>
   <style>
-    :root {
-      --primary: #e60012;
-      --bg: #f4f6f8;
-      --card-bg: #ffffff;
-      --text: #333333;
-      --border: #dddddd;
-    }
+    :root { --primary: #e60012; --bg: #f4f6f8; --card-bg: #ffffff; --text: #333333; --border: #dddddd; }
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; }
     header { background: var(--primary); color: white; padding: 15px; text-align: center; font-weight: bold; font-size: 1.2rem; }
     nav { display: flex; background: #222; }
@@ -32,7 +26,6 @@
     .bg-2x { background: #f0ad4e; }
     .bg-1x { background: #777777; }
     .bg-0x { background: #333333; }
-    .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; font-size: 0.8rem; background: #f9f9f9; padding: 8px; border-radius: 4px; margin-top: 8px; }
     .tag-item { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #eee; padding: 8px 0; }
     .tag-item:last-child { border-bottom: none; }
     .checkbox-custom { width: 20px; height: 20px; cursor: pointer; }
@@ -129,7 +122,6 @@
   </div>
 
   <script>
-    // TYPE CHART EFFECTIVENESS MATRIX
     const TYPE_CHART = {
       normal: { rock:0.5, ghost:0, steel:0.5 },
       fire: { fire:0.5, water:0.5, grass:2, ice:2, bug:2, rock:0.5, dragon:0.5, steel:2 },
@@ -151,47 +143,22 @@
       fairy: { fire:0.5, fighting:2, poison:0.5, dragon:2, dark:2, steel:0.5 }
     };
 
-    // BASE DATABASE (RAW PARSED DATA)
-    const BASE_DATA = [
-      // STARDUST V1
-      { set: "STARDUST V1", tagNo: "1-1-001 EN", name: "Mewtwo", grade: "★6 Super Star", type: "Psychic", move: "Psystrike", moveType: "Psychic", spe: 140, energy: 158 },
-      { set: "STARDUST V1", tagNo: "1-1-002 EN", name: "Mew", grade: "★6 Super Star", type: "Psychic", move: "Psychic", moveType: "Psychic", spe: 109, energy: 142 },
-      { set: "STARDUST V1", tagNo: "1-1-003 EN", name: "Zacian", grade: "★6 Super Star", type: "Steel", move: "Behemoth Blade", moveType: "Steel", spe: 153, energy: 162 },
-      { set: "STARDUST V1", tagNo: "1-1-004 EN", name: "Zamazenta", grade: "★6 Super Star", type: "Steel", move: "Behemoth Bash", moveType: "Steel", spe: 133, energy: 162 },
-      { set: "STARDUST V1", tagNo: "1-1-005 EN", name: "Tyranitar", grade: "★6 Super Star", type: "Rock", move: "Stone Edge", moveType: "Rock", spe: 69, energy: 144 },
-      { set: "STARDUST V1", tagNo: "1-1-006 EN", name: "Metagross", grade: "★6 Super Star", type: "Steel", move: "Meteor Mash", moveType: "Steel", spe: 79, energy: 144 },
-      { set: "STARDUST V1", tagNo: "1-1-007 EN", name: "Miraidon", grade: "★6 Super Star", type: "Electric", move: "Electro Drift", moveType: "Electric", spe: 150, energy: 162 },
-      { set: "STARDUST V1", tagNo: "1-1-008 EN", name: "Venusaur", grade: "★6 Super Star", type: "Grass", move: "Leaf Storm", moveType: "Grass", spe: 85, energy: 122 },
-      { set: "STARDUST V1", tagNo: "1-1-009 EN", name: "Charizard", grade: "★6 Super Star", type: "Fire", move: "Flamethrower", moveType: "Fire", spe: 105, energy: 124 },
-      { set: "STARDUST V1", tagNo: "1-1-010 EN", name: "Blastoise", grade: "★6 Super Star", type: "Water", move: "Hydro Pump", moveType: "Water", spe: 83, energy: 124 },
+    // COMPACT DATASTORE OF ALL 165 POKÉMON FROM V1, V2, V3
+    const RAW_PACK = [["1-1-001 EN","Mewtwo","★6 Super Star","Psychic","Psystrike","Psychic",140,158,1],["1-1-002 EN","Mew","★6 Super Star","Psychic","Psychic","Psychic",109,142,1],["1-1-003 EN","Zacian","★6 Super Star","Steel","Behemoth Blade","Steel",153,162,1],["1-1-004 EN","Zamazenta","★6 Super Star","Steel","Behemoth Bash","Steel",133,162,1],["1-1-005 EN","Tyranitar","★6 Super Star","Rock","Stone Edge","Rock",69,144,1],["1-1-006 EN","Metagross","★6 Super Star","Steel","Meteor Mash","Steel",79,144,1],["1-1-007 EN","Miraidon","★6 Super Star","Electric","Electro Drift","Electric",150,162,1],["1-1-008 EN","Venusaur","★6 Super Star","Grass","Leaf Storm","Grass",85,122,1],["1-1-009 EN","Charizard","★6 Super Star","Fire","Flamethrower","Fire",105,124,1],["1-1-010 EN","Blastoise","★6 Super Star","Water","Hydro Pump","Water",83,124,1],["1-1-011 EN","Vaporeon","★5 Star","Water","Hydro Pump","Water",62,108,1],["1-1-012 EN","Flareon","★5 Star","Fire","Flamethrower","Fire",62,108,1],["1-1-013 EN","Umbreon","★5 Star","Dark","Dark Pulse","Dark",64,112,1],["1-1-014 EN","Glaceon","★5 Star","Ice","Ice Beam","Ice",66,114,1],["1-1-015 EN","Pidgeot","★5 Star","Flying","Hurricane","Flying",93,100,1],["1-1-016 EN","Gengar","★5 Star","Ghost","Shadow Ball","Ghost",106,108,1],["1-1-017 EN","Arcanine","★5 Star","Fire","Inferno Overdrive","Fire",88,114,1],["1-1-018 EN","Rhyperior","★5 Star","Ground","Earthquake","Ground",39,110,1],["1-1-019 EN","Pikachu","★5 Star","Electric","Thunderbolt","Electric",114,96,1],["1-1-020 EN","Flygon","★5 Star","Ground","Earthquake","Ground",99,114,1],["1-1-021 EN","Rillaboom","★5 Star","Grass","Drum Beating","Grass",79,108,1],["1-1-022 EN","Cinderace","★5 Star","Fire","Pyro Ball","Fire",109,108,1],["1-1-023 EN","Inteleon","★5 Star","Water","Snipe Shot","Water",110,108,1],["1-1-024 EN","Obstagoon","★5 Star","Dark","Throat Chop","Dark",92,112,1],["1-1-025 EN","Keldeo","★5 Star","Water","Sacred Sword","Fighting",104,122,1],["1-1-026 EN","Sprigatito","★2 Star","Grass","Leafage","Grass",41,48,1],["1-1-027 EN","Floragato","★3 Star","Grass","Magical Leaf","Grass",74,84,1],["1-1-028 EN","Fuecoco","★2 Star","Fire","Ember","Fire",25,48,1],["1-1-029 EN","Crocalor","★3 Star","Fire","Incinerate","Fire",46,84,1],["1-1-030 EN","Quaxly","★2 Star","Water","Water Gun","Water",33,48,1],["1-1-031 EN","Quaxwell","★3 Star","Water","Water Pulse","Water",59,84,1],["1-1-032 EN","Grookey","★2 Star","Grass","Branch Poke","Grass",36,42,1],["1-1-033 EN","Thwackey","★3 Star","Grass","Razor Leaf","Grass",53,64,1],["1-1-034 EN","Rillaboom","★4 Star","Grass","Bullet Seed","Grass",66,90,1],["1-1-035 EN","Scorbunny","★2 Star","Fire","Ember","Fire",38,42,1],["1-1-036 EN","Raboot","★3 Star","Fire","Flame Charge","Fire",61,64,1],["1-1-037 EN","Cinderace","★4 Star","Fire","Blaze Kick","Fire",90,90,1],["1-1-038 EN","Sobble","★2 Star","Water","Water Gun","Water",39,42,1],["1-1-039 EN","Drizzile","★3 Star","Water","Water Pulse","Water",58,64,1],["1-1-040 EN","Inteleon","★4 Star","Water","Dive","Water",91,90,1],["1-1-041 EN","Dedenne","★2 Star","Electric","Thunder Shock","Electric",55,52,1],["1-1-042 EN","Pikachu","★3 Star","Electric","Spark","Electric",70,60,1],["1-1-043 EN","Raichu","★4 Star","Electric","Thunder","Electric",84,84,1],["1-1-044 EN","Eevee","★3 Star","Normal","Swift","Normal",44,60,1],["1-1-045 EN","Jolteon","★4 Star","Electric","Thunder","Electric",99,90,1],["1-1-046 EN","Espeon","★4 Star","Psychic","Psybeam","Psychic",86,92,1],["1-1-047 EN","Leafeon","★4 Star","Grass","Razor Leaf","Grass",77,94,1],["1-1-048 EN","Sylveon","★4 Star","Fairy","Dazzling Gleam","Fairy",51,96,1],["1-1-049 EN","Sneasel","★3 Star","Dark","Payback","Dark",76,66,1],["1-1-050 EN","Weavile","★4 Star","Dark","Night Slash","Dark",97,90,1],["1-1-051 EN","Golett","★2 Star","Ground","Astonish","Ghost",22,42,1],["1-1-052 EN","Golurk","★3 Star","Ground","Shadow Punch","Ghost",39,72,1],["1-1-053 EN","Slowpoke","★2 Star","Water","Water Gun","Water",9,42,1],["1-1-054 EN","Slowbro","★4 Star","Water","Water Pulse","Water",24,84,1],["1-1-055 EN","Mudbray","★3 Star","Ground","Bulldoze","Ground",33,62,1],["1-1-056 EN","Mudsdale","★4 Star","Ground","Stomping Tantrum","Ground",31,90,1],["1-1-057 EN","Galarian Zigzagoon","★2 Star","Dark","Payback","Dark",35,36,1],["1-1-058 EN","Galarian Linoone","★3 Star","Dark","Snarl","Dark",67,64,1],["1-1-059 EN","Obstagoon","★4 Star","Dark","Assurance","Dark",75,90,1],["1-1-060 EN","Grubbin","★2 Star","Bug","Bug Bite","Bug",28,42,1],["1-1-061 EN","Charjabug","★3 Star","Bug","X-Scissor","Bug",26,62,1],["1-1-062 EN","Vikavolt","★4 Star","Bug","Bug Buzz","Bug",35,88,1],["1-1-063 EN","Doduo","★2 Star","Normal","Peck","Flying",41,40,1],["1-1-064 EN","Dodrio","★4 Star","Normal","Pluck","Flying",84,82,1],["1-1-065 EN","Gossifleur","★2 Star","Grass","Leafage","Grass",7,44,1],["1-1-066 EN","Eldegoss","★4 Star","Grass","Leaf Tornado","Grass",48,80,1],["1-1-067 EN","Turtonator","★4 Star","Fire","Incinerate","Fire",30,84,1],["1-1-068 EN","Cramorant","★3 Star","Flying","Scald","Water",56,70,1],["1-1-069 EN","Snom","★2 Star","Ice","Powder Snow","Ice",14,30,1],["1-1-070 EN","Frosmoth","★4 Star","Ice","Aurora Beam","Ice",54,86,1],["1-2-001 EN","Kyogre","★6 Super Star","Water","Hydro Pump","Water",95,152,2],["1-2-002 EN","Groudon","★6 Super Star","Ground","Earthquake","Ground",95,152,2],["1-2-003 EN","Koraidon","★6 Super Star","Fighting","Collision Course","Fighting",150,162,2],["1-2-004 EN","Pikachu","★6 Super Star","Electric","Thunderbolt","Electric",120,102,2],["1-2-005 EN","Snorlax","★6 Super Star","Normal","Giga Impact","Normal",39,144,2],["1-2-006 EN","Kommo-o","★6 Super Star","Dragon","Focus Blast","Fighting",103,158,2],["1-2-007 EN","Gardevoir","★6 Super Star","Psychic","Psychic","Psychic",88,124,2],["1-2-008 EN","Reshiram","★6 Super Star","Dragon","Fusion Flare","Fire",100,162,2],["1-2-009 EN","Zekrom","★6 Super Star","Dragon","Fusion","Electric",100,162,2],["1-2-010 EN","Kyurem","★6 Super Star","Dragon","Blizzard","Ice",105,156,2],["1-2-011 EN","Jolteon","★5 Star","Electric","Thunderbolt","Electric",119,108,2],["1-2-012 EN","Espeon","★5 Star","Psychic","Psychic","Psychic",106,112,2],["1-2-013 EN","Leafeon","★5 Star","Grass","Leaf Blade","Grass",94,114,2],["1-2-014 EN","Sylveon","★5 Star","Fairy","Moonblast","Fairy",62,116,2],["1-2-015 EN","Lucario","★5 Star","Fighting","Aura Sphere","Fighting",91,118,2],["1-2-016 EN","Torterra","★5 Star","Grass","Earthquake","Ground",56,112,2],["1-2-017 EN","Infernape","★5 Star","Fire","Close Combat","Fighting",104,114,2],["1-2-018 EN","Empoleon","★5 Star","Water","Flash Cannon","Steel",60,114,2],["1-2-019 EN","Alolan Ninetales","★5 Star","Ice","Blizzard","Ice",118,122,2],["1-2-020 EN","Tyranitar","★5 Star","Ground","Stone Edge","Ground",63,132,2],["1-2-021 EN","Metagross","★5 Star","Steel","Meteor Mash","Steel",72,132,2],["1-2-022 EN","Flapple","★5 Star","Grass","Dragon Rush","Dragon",72,110,2],["1-2-023 EN","Appletun","★5 Star","Grass","Apple Acid","Grass",33,110,2],["1-2-024 EN","Alcremie","★5 Star","Fairy","Dazzling Gleam","Fairy",66,112,2],["1-2-025 EN","Drednaw","★5 Star","Water","Head Smash","Ground",73,104,2],["1-2-026 EN","Meowscarada","★4 Star","Grass","Night Slash","Dark",96,92,2],["1-2-027 EN","Skeledirge","★4 Star","Fire","Hex","Ghost",53,92,2],["1-2-028 EN","Quaquaval","★4 Star","Water","Low Sweep","Fighting",67,92,2],["1-2-029 EN","Charcadet","★2 Star","Fire","Ember","Fire",24,40,2],["1-2-030 EN","Frigibax","★2 Star","Dragon","Tackle","Normal",35,48,2],["1-2-031 EN","Pawmi","★2 Star","Electric","Scratch","Normal",38,40,2],["1-2-032 EN","Turtwig","★2 Star","Grass","Absorb","Grass",20,44,2],["1-2-033 EN","Grotle","★3 Star","Grass","Mega Drain","Grass",26,64,2],["1-2-034 EN","Torterra","★4 Star","Grass","Stomping Tantrum","Ground",46,92,2],["1-2-035 EN","Chimchar","★2 Star","Fire","Ember","Fire",35,42,2],["1-2-036 EN","Monferno","★3 Star","Fire","Mach Punch","Fighting",55,64,2],["1-2-037 EN","Infernape","★4 Star","Fire","Brick Break","Fighting",84,92,2],["1-2-038 EN","Piplup","★2 Star","Water","Bubble","Water",25,44,2],["1-2-039 EN","Prinplup","★3 Star","Water","Bubble Beam","Water",36,64,2],["1-2-040 EN","Empoleon","★4 Star","Water","Steel Wing","Steel",49,92,2],["1-2-041 EN","Vaporeon","★4 Star","Water","Muddy Water","Water",51,90,2],["1-2-042 EN","Flareon","★4 Star","Fire","Lava Plume","Fire",51,90,2],["1-2-043 EN","Umbreon","★4 Star","Dark","Bite","Dark",53,92,2],["1-2-044 EN","Glaceon","★4 Star","Ice","Freeze-Dry","Ice",54,94,2],["1-2-045 EN","Yamper","★2 Star","Electric","Nuzzle","Electric",16,38,2],["1-2-046 EN","Boltund","★4 Star","Electric","Spark","Electric",93,84,2],["1-2-047 EN","Pidgey","★2 Star","Normal","Gust","Flying",31,36,2],["1-2-048 EN","Pidgeotto","★3 Star","Normal","Wing Attack","Flying",47,54,2],["1-2-049 EN","Pidgeot","★4 Star","Normal","Air Slash","Flying",77,82,2],["1-2-050 EN","Alolan Sandshrew","★2 Star","Ice","Icicle Spear","Ice",24,40,2],["1-2-051 EN","Alolan Sandslash","★4 Star","Ice","Icicle Crash","Ice",51,78,2],["1-2-052 EN","Bronzor","★2 Star","Steel","Confusion","Psychic",16,42,2],["1-2-053 EN","Bronzor","★2 Star","Steel","Confusion","Psychic",24,74,2],["1-2-054 EN","Trapinch","★2 Star","Ground","Sand Tomb","Ground",6,40,2],["1-2-055 EN","Vibrava","★3 Star","Ground","Dragon Tail","Dragon",51,58,2],["1-2-056 EN","Flygon","★4 Star","Ground","Dragon Claw","Dragon",83,96,2],["1-2-057 EN","Wingull","★2 Star","Water","Gust","Flying",50,38,2],["1-2-058 EN","Pelipper","★3 Star","Water","Air Slash","Flying",46,70,2],["1-2-059 EN","Jynx","★3 Star","Ice","Avalanche","Ice",62,68,2],["1-2-060 EN","Abra","★2 Star","Psychic","Hidden Power","Psychic",50,42,2],["1-2-061 EN","Kadabra","★3 Star","Psychic","Psybeam","Psychic",70,62,2],["1-2-062 EN","Alakazam","★4 Star","Psychic","Psychic","Psychic",93,88,2],["1-2-063 EN","Drifloon","★3 Star","Ghost","Astonish","Ghost",48,56,2],["1-2-064 EN","Drifblim","★4 Star","Ghost","Hex","Ghost",64,88,2],["1-2-065 EN","Mareanie","★3 Star","Poison","Venoshock","Poison",34,54,2],["1-2-066 EN","Togedemaru","★3 Star","Electric","Spark","Electric",66,68,2],["1-2-067 EN","Ralts","★2 Star","Psychic","Disarming Voice","Fairy",25,32,2],["1-2-068 EN","Kirlia","★3 Star","Psychic","Draining Kiss","Fairy",38,50,2],["1-2-069 EN","Gardevoir","★4 Star","Psychic","Psyshock","Psychic",67,96,2],["1-2-070 EN","Onix","★3 Star","Rock","Bulldoze","Ground",51,64,2],["1-3-001 EN","Lugia","★6 Super Star","Psychic","Aeroblast","Flying",121,162,3],["1-3-002 EN","Ho-Oh","★6 Super Star","Fire","Sacred Fire","Fire",107,172,3],["1-3-003 EN","Solgaleo","★6 Super Star","Psychic","Sunsteel Strike","Steel",115,172,3],["1-3-004 EN","Lunala","★6 Super Star","Psychic","Moongiest Beam","Ghost",115,172,3],["1-3-005 EN","Greninja","★6 Super Star","Water","Dark Pulse","Dark",146,142,3],["1-3-006 EN","Zeraora","★6 Super Star","Electric","Plasma Fists","Electric",170,158,3],["1-3-007 EN","Eternatus","★6 Super Star","Poison","Dynamax Cannon","Dragon",145,166,3],["1-3-008 EN","Keldeo","★6 Super Star","Water","Secret Sword","Fighting",134,158,3],["1-3-009 EN","Grimmsnarl","★6 Super Star","Dark","Spirit Break","Fairy",69,128,3],["1-3-010 EN","Zygarde","★6 Super Star","Dragon","Land's Wrath","Ground",103,164,3],["1-3-011 EN","Sceptile","★5 Star","Grass","Leaf Storm","Grass",129,128,3],["1-3-012 EN","Blaziken","★5 Star","Fire","Focus Blast","Fighting",88,128,3],["1-3-013 EN","Swampert","★5 Star","Water","Earthquake","Ground",67,128,3],["1-3-014 EN","Chandelure","★5 Star","Ghost","Shadow Ball","Ghost",91,130,3],["1-3-015 EN","Grimmsnarl","★5 Star","Dark","Spirit Break","Fairy",67,122,3],["1-3-016 EN","Nidoqueen","★5 Star","Poison","Earth Power","Ground",84,122,3],["1-3-017 EN","Pidgeot","★5 Star","Normal","Hurricane","Flying",112,118,3],["1-3-018 EN","Coalossal","★5 Star","Rock","Rock Blast","Rock",37,128,3],["1-3-019 EN","Pikachu","★5 Star","Electric","Thunderbolt","Electric",127,108,3],["1-3-020 EN","Alakazam","★5 Star","Psychic","Psychic","Psychic",129,120,3],["1-3-021 EN","Regirock","★5 Star","Rock","Stone Edge","Rock",58,140,3],["1-3-022 EN","Regice","★5 Star","Ice","Ice Beam","Ice",58,140,3],["1-3-023 EN","Registeel","★5 Star","Steel","Flash Cannon","Steel",58,140,3],["1-3-024 EN","Great Tusk","★5 Star","Ground","Close Combat","Fighting",97,138,3],["1-3-025 EN","Haxorus","★5 Star","Dragon","Outrage","Dragon",103,126,3]];
 
-      // STARDUST V2
-      { set: "STARDUST V2", tagNo: "1-2-001 EN", name: "Kyogre", grade: "★6 Super Star", type: "Water", move: "Hydro Pump", moveType: "Water", spe: 95, energy: 152 },
-      { set: "STARDUST V2", tagNo: "1-2-002 EN", name: "Groudon", grade: "★6 Super Star", type: "Ground", move: "Earthquake", moveType: "Ground", spe: 95, energy: 152 },
-      { set: "STARDUST V2", tagNo: "1-2-003 EN", name: "Koraidon", grade: "★6 Super Star", type: "Fighting", move: "Collision Course", moveType: "Fighting", spe: 150, energy: 162 },
-      { set: "STARDUST V2", tagNo: "1-2-004 EN", name: "Pikachu", grade: "★6 Super Star", type: "Electric", move: "Thunderbolt", moveType: "Electric", spe: 120, energy: 102 },
-      { set: "STARDUST V2", tagNo: "1-2-005 EN", name: "Snorlax", grade: "★6 Super Star", type: "Normal", move: "Giga Impact", moveType: "Normal", spe: 39, energy: 144 },
-      { set: "STARDUST V2", tagNo: "1-2-006 EN", name: "Kommo-o", grade: "★6 Super Star", type: "Dragon", move: "Focus Blast", moveType: "Fighting", spe: 103, energy: 158 },
-      { set: "STARDUST V2", tagNo: "1-2-007 EN", name: "Gardevoir", grade: "★6 Super Star", type: "Psychic", move: "Psychic", moveType: "Psychic", spe: 88, energy: 124 },
-      { set: "STARDUST V2", tagNo: "1-2-008 EN", name: "Reshiram", grade: "★6 Super Star", type: "Dragon", move: "Fusion Flare", moveType: "Fire", spe: 100, energy: 162 },
-      { set: "STARDUST V2", tagNo: "1-2-009 EN", name: "Zekrom", grade: "★6 Super Star", type: "Dragon", move: "Fusion Bolt", moveType: "Electric", spe: 100, energy: 162 },
-      { set: "STARDUST V2", tagNo: "1-2-010 EN", name: "Kyurem", grade: "★6 Super Star", type: "Dragon", move: "Blizzard", moveType: "Ice", spe: 105, energy: 156 },
+    const parsedBaseData = RAW_PACK.map(item => ({
+      tagNo: item[0],
+      name: item[1],
+      grade: item[2],
+      type: item[3],
+      move: item[4],
+      moveType: item[5],
+      spe: item[6],
+      energy: item[7],
+      set: "STARDUST V" + item[8]
+    }));
 
-      // STARDUST V3
-      { set: "STARDUST V3", tagNo: "1-3-001 EN", name: "Lugia", grade: "★6 Super Star", type: "Psychic", move: "Aeroblast", moveType: "Flying", spe: 121, energy: 162 },
-      { set: "STARDUST V3", tagNo: "1-3-002 EN", name: "Ho-Oh", grade: "★6 Super Star", type: "Fire", move: "Sacred Fire", moveType: "Fire", spe: 107, energy: 172 },
-      { set: "STARDUST V3", tagNo: "1-3-003 EN", name: "Solgaleo", grade: "★6 Super Star", type: "Psychic", move: "Sunsteel Strike", moveType: "Steel", spe: 115, energy: 172 },
-      { set: "STARDUST V3", tagNo: "1-3-004 EN", name: "Lunala", grade: "★6 Super Star", type: "Psychic", move: "Moongiest Beam", moveType: "Ghost", spe: 115, energy: 172 },
-      { set: "STARDUST V3", tagNo: "1-3-005 EN", name: "Greninja", grade: "★6 Super Star", type: "Water", move: "Dark Pulse", moveType: "Dark", spe: 146, energy: 142 },
-      { set: "STARDUST V3", tagNo: "1-3-006 EN", name: "Zeraora", grade: "★6 Super Star", type: "Electric", move: "Plasma Fists", moveType: "Electric", spe: 170, energy: 158 },
-      { set: "STARDUST V3", tagNo: "1-3-007 EN", name: "Eternatus", grade: "★6 Super Star", type: "Poison", move: "Dynamax Cannon", moveType: "Dragon", spe: 145, energy: 166 },
-      { set: "STARDUST V3", tagNo: "1-3-008 EN", name: "Keldeo", grade: "★6 Super Star", type: "Water", move: "Secret Sword", moveType: "Fighting", spe: 134, energy: 158 },
-      { set: "STARDUST V3", tagNo: "1-3-009 EN", name: "Grimmsnarl", grade: "★6 Super Star", type: "Dark", move: "Spirit Break", moveType: "Fairy", spe: 69, energy: 128 },
-      { set: "STARDUST V3", tagNo: "1-3-010 EN", name: "Zygarde", grade: "★6 Super Star", type: "Dragon", move: "Land's Wrath", moveType: "Ground", spe: 103, energy: 164 }
-    ];
-
-    // LOCAL STORAGE STATE
-    let pokedexData = JSON.parse(localStorage.getItem('mezastar_db')) || BASE_DATA;
+    let pokedexData = JSON.parse(localStorage.getItem('mezastar_db')) || parsedBaseData;
     let ownedTags = JSON.parse(localStorage.getItem('mezastar_owned')) || {};
 
     function saveData() {
@@ -325,7 +292,7 @@
       }
 
       pokedexData.push(newTag);
-      ownedTags[newTag.tagNo] = true; // Auto-own added tag
+      ownedTags[newTag.tagNo] = true;
       saveData();
       initBossDropdown();
       alert("Tag Saved Successfully!");
@@ -333,7 +300,6 @@
       renderCollection();
     }
 
-    // Initialize
     initBossDropdown();
     renderCollection();
   </script>
